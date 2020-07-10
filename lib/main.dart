@@ -1,3 +1,6 @@
+import 'package:admin_website/group.dart';
+import 'package:admin_website/paperback.dart';
+import 'package:admin_website/selection.dart';
 import 'package:admin_website/uploadData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +20,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      routes: <String, WidgetBuilder>{
+        '/login': (BuildContext context) => Login(),
+        'upload': (BuildContext context) => UploadData(),
+      },
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,

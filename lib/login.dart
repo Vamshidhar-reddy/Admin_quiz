@@ -1,3 +1,4 @@
+import 'package:admin_website/selection.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatefulWidget {
@@ -11,42 +12,10 @@ class Login extends StatefulWidget {
 TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
 class _LoginState extends State<Login> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-    
-    final userName = TextField(
-      obscureText: false,
-      style: style,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Username",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
-    );
-    final passwordField = TextField(
-      obscureText: true,
-      style: style,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Password",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
-    );
-    final loginButon = Material(
-      elevation: 5.0,
-      borderRadius: BorderRadius.circular(30.0),
-      color: Color(0xff01A0C7),
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {},
-        child: Text("Login",
-            textAlign: TextAlign.center,
-            style: style.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-
     return Scaffold(
       body: Center(
         child: Container(
@@ -57,23 +26,52 @@ class _LoginState extends State<Login> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                // SizedBox(
-                //   height: 155.0,
-                //   child: Image.asset(
-                //     "assets/logo.png",
-                //     fit: BoxFit.contain,
-                //   ),
-                // ),
-                SizedBox(height: 45.0),
-                userName,
-                SizedBox(height: 25.0),
-                passwordField,
                 SizedBox(
-                  height: 35.0,
+                  height: 70.0,
+                  child: Image.asset(
+                    "assets/logo.png",
+                    fit: BoxFit.contain,
+                  ),
                 ),
-                loginButon,
-                SizedBox(
-                  height: 15.0,
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(padding: EdgeInsets.all(10.0)),
+                      TextFormField(
+                        obscureText: false,
+                        validator: validateName,
+                        decoration: InputDecoration(
+                            contentPadding:
+                                EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                            hintText: "Username",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25.0))),
+                      ),
+                      Padding(padding: EdgeInsets.all(10.0)),
+                      TextFormField(
+                        obscureText: true,
+                        validator: validatePassword,
+                        decoration: InputDecoration(
+                            contentPadding:
+                                EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                            hintText: "Password",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25.0))),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Center(
+                          child: RaisedButton(
+                            color: Color(0xff01A0C7),
+                            onPressed: _validateInputs,
+                            child: Text('Submit'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -82,5 +80,30 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-}
 
+  void _validateInputs() {
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+
+      Navigator.push(context,
+          new MaterialPageRoute(builder: (context) => new Selection()));
+    }
+  }
+
+  String validateName(String value) {
+    if (value == 'quizoraAdmin1') {
+      return null;
+    } else {
+      return "Username is incorrect";
+    }
+  }
+
+  String validatePassword(String value) {
+    if (value == 'quiz123') {
+      return null;
+    } else {
+      return "incorrect password";
+    }
+  }
+}
