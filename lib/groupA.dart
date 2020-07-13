@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:path/path.dart' as path;
 class GroupA extends StatefulWidget {
   @override
   _GroupAState createState() => _GroupAState();
@@ -21,7 +21,8 @@ class _GroupAState extends State<GroupA> {
   String _category;
   String _group;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
+  List<String> image = List<String>();
+  var url;
   Future getDisplayImage() async {
     var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
@@ -54,7 +55,7 @@ class _GroupAState extends State<GroupA> {
 
       var timeKey = new DateTime.now();
       final StorageUploadTask uploadTask =
-          postImageRef.child(timeKey.toString() + ".png").putFile(sampleImage);
+          postImageRef.child(path.basenameWithoutExtension(sampleImage.path)).putFile(sampleImage);
 
       var PostUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
       postUrl = PostUrl.toString();
@@ -73,17 +74,17 @@ class _GroupAState extends State<GroupA> {
     String date = formatDate.format(dbTimeKey);
     String time = formatTime.format(dbTimeKey);
 
-    DatabaseReference ref = FirebaseDatabase.instance.reference();
+   final ref = Firestore.instance.collection("GroupA");
 
     var data = {
       "postImage": postUrl,
       "title": _myValue,
       "date": date,
       "time": time,
-      "description": _description,
-      "category": _category,
+    
     };
-    ref.child("PaperBacks/GroupA/").push().set(data);
+    ref.document("${path.basenameWithoutExtension(sampleImage.path)}").setData(data);
+
   }
 
   Future<dynamic> getName() async {
@@ -202,15 +203,15 @@ class _GroupAState extends State<GroupA> {
                     return _description = value;
                   },
                 ),
-                TextFormField(
-                  decoration: new InputDecoration(labelText: 'Category'),
-                  validator: (value) {
-                    return value.isEmpty ? 'Category is required' : null;
-                  },
-                  onSaved: (value) {
-                    return _category = value;
-                  },
-                ),
+                // TextFormField(
+                //   decoration: new InputDecoration(labelText: 'Category'),
+                //   validator: (value) {
+                //     return value.isEmpty ? 'Category is required' : null;
+                //   },
+                //   onSaved: (value) {
+                //     return _category = value;
+                //   },
+                // ),
                 SizedBox(height: 15.0),
                 RaisedButton(
                   color: Colors.black,
