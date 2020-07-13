@@ -1,5 +1,6 @@
 import 'package:admin_website/GroupA.dart';
 import 'package:admin_website/groupB.dart';
+import 'package:admin_website/selection.dart';
 import 'package:flutter/material.dart';
 import 'GroupA.dart';
 import 'groupB.dart';
@@ -55,45 +56,50 @@ class _GroupState extends State<Group> {
       //         // }),
 
       //     ]),
-      body: ListView(
-        padding: EdgeInsets.all(30.0),
-        children: <Widget>[
-          Container(
-            color: Colors.tealAccent,
-            height: 200.0,
-            width: 100.0,
-            child: ListTile(
-                title: Center(
-                    child: Text(
-                  'Group A',
-                  style: TextStyle(fontSize: 50.0),
-                )),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => new GroupA()));
-                }),
-          ),
-          Padding(padding: EdgeInsets.all(15.0)),
-          Container(
-            color: Colors.indigo,
-            height: 200.0,
-            width: 100.0,
-            child: ListTile(
-                title: Center(
-                    child: Text(
-                  'Group B',
-                  style: TextStyle(fontSize: 50.0),
-                )),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => new GroupB()));
-                }),
-          ),
-        ],
+      body: WillPopScope(
+          onWillPop: () {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Selection()));
+        },
+              child: ListView(
+          padding: EdgeInsets.all(30.0),
+          children: <Widget>[
+            Container(
+              color: Colors.tealAccent,
+              height: 200.0,
+              width: 100.0,
+              child: ListTile(
+                  title: Center(
+                      child: Text(
+                    'Group A',
+                    style: TextStyle(fontSize: 50.0),
+                  )),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new GroupA()));
+                  }),
+            ),
+            Padding(padding: EdgeInsets.all(15.0)),
+            Container(
+              color: Colors.indigo,
+              height: 200.0,
+              width: 100.0,
+              child: ListTile(
+                  title: Center(
+                      child: Text(
+                    'Group B',
+                    style: TextStyle(fontSize: 50.0),
+                  )),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new GroupB()));
+                  }),
+            ),
+          ],
+        ),
       ),
     );
   }

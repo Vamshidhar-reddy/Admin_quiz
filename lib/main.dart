@@ -24,14 +24,18 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/login': (BuildContext context) => Login(),
         'upload': (BuildContext context) => UploadData(),
+                'cover': (BuildContext context) => PaperBack(),
+                                'groupA': (BuildContext context) => GroupA(),
+
+
       },
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: Login(),
-      home:GroupA()
+      home: Login(),
+      // home:GroupA()
     );
   }
 }
