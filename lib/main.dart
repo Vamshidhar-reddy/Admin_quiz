@@ -4,6 +4,7 @@ import 'package:admin_website/selection.dart';
 import 'package:admin_website/uploadData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'groupA.dart';
 import 'login.dart';
 
 void main() {
@@ -29,7 +30,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Login(),
+      // home: Login(),
+      home:GroupA()
     );
   }
 }

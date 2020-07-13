@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GroupA extends StatefulWidget {
   @override
@@ -38,6 +39,12 @@ class _GroupAState extends State<GroupA> {
     } else {
       return false;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getName();
   }
 
   void uploadStatusImage() async {
@@ -78,11 +85,38 @@ class _GroupAState extends State<GroupA> {
     };
     ref.child("PaperBacks/GroupA/").push().set(data);
   }
-  void getFirebaseImageFolder() {
-    final StorageReference storageRef =
-        FirebaseStorage.instance.ref().child('PaperBack/GroupA');
-    storageRef.child("PaperBack/GroupA").;}
 
+  Future<dynamic> getName() async {
+    final db = Firestore.instance;
+    QuerySnapshot qs;
+    qs = await Firestore.instance.collection("GroupA").getDocuments();
+    print("doc");
+    List<DocumentSnapshot> d = qs.documents;
+    print(d.length);
+    print(d[0].documentID);
+    print(d[0].data);
+
+    List<dynamic> cover = d[0].data["Cover"];
+    cover.forEach((el) {
+      print(el);
+    });
+    return qs;
+  }
+
+  Future<dynamic> getFire() {
+    // StorageMetadata a = StorageMetadata();
+    final StorageReference storageRef =
+        FirebaseStorage.instance.ref().child("PaperBacks/GroupA");
+    final a = FirebaseStorage.instance
+        .ref()
+        .child("PaperBacks/GroupA")
+        .path
+        .startsWith("Paper");
+    // storageRef.getReference().child("files/uid");
+
+    print(a.toString());
+    return storageRef.getPath();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +131,15 @@ class _GroupAState extends State<GroupA> {
                     style: TextStyle(fontSize: 50.0),
                   )
                 : enableUpload(),
-          ),FutureBuilder(
-            future: ,builder:(context,snap){
-
-            } )
-
+          ),
+          // FutureBuilder(
+          //     future: getName(),
+          //     builder: (context, snap) {
+          //       if (snap.hasData) {
+          //         // print(snap.data);
+          //         return Text("snap.data.toString()");
+          //       }
+          //     })
         ],
       ),
       floatingActionButton: new FloatingActionButton(

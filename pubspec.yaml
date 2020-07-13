@@ -38,6 +38,7 @@ dependencies:
   firebase_analytics:
   flutter_plugin_pdf_viewer:
   firebase_auth:
+  cloud_firestore: 
   http:
   flushbar: 
     git: 
