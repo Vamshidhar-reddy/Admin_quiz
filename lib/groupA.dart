@@ -11,6 +11,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
+import 'package:provider/provider.dart';
+
+import 'model/state.dart';
 
 class GroupA extends StatefulWidget {
   @override
@@ -18,9 +21,10 @@ class GroupA extends StatefulWidget {
 }
 
 class _GroupAState extends State<GroupA> {
+  String grpName;
   List<DocumentSnapshot> d = [];
   File sampleImage;
-  String _myValue;
+  int _myValue;
   String _description;
   String postUrl;
   String cardUrl;
@@ -48,26 +52,26 @@ class _GroupAState extends State<GroupA> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getName();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   getName();
+  // }
 
   void uploadStatusImage() async {
     if (validateAndSave()) {
       final StorageReference postImageRef =
-          FirebaseStorage.instance.ref().child("PaperBacks/GroupA/");
+          FirebaseStorage.instance.ref().child("PaperBacks/$grpName/");
 
       var timeKey = new DateTime.now();
-      final StorageUploadTask uploadTask = postImageRef
-          .child(path.basenameWithoutExtension(sampleImage.path))
-          .putFile(sampleImage);
+      final StorageUploadTask uploadTask =
+          postImageRef.child("paperBack${_myValue}").putFile(sampleImage);
 
       var PostUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
       postUrl = PostUrl.toString();
       print("Post Url =" + postUrl);
       saveToDatabase(postUrl);
+      getName();
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => GroupA()));
     }
@@ -81,48 +85,43 @@ class _GroupAState extends State<GroupA> {
     String date = formatDate.format(dbTimeKey);
     String time = formatTime.format(dbTimeKey);
 
-    final ref = Firestore.instance.collection("GroupA");
+    final ref = Firestore.instance.collection("$grpName");
 
-    Map<String, String> cover = Map<String, String>();
+    Map<String, List<String>> topic = Map<String, List<String>>();
 
     var data = {
       "img": postUrl,
-      "title": _myValue,
+      "name": _myValue,
+      "title": _description,
       "date": date,
       "time": time,
-      "Cover": cover
+      "Topic": topic
     };
-    ref
-        .document("${path.basenameWithoutExtension(sampleImage.path)}")
-        .setData(data);
+    ref.document("paperBack${_myValue}").setData(data);
+    print("paperback uplpaded");
   }
 
   Future<List<DocumentSnapshot>> getName() async {
     final db = Firestore.instance;
     QuerySnapshot qs;
-    qs = await Firestore.instance.collection("GroupA").getDocuments();
+    qs = await Firestore.instance.collection("$grpName").getDocuments();
     print("doc");
     List<DocumentSnapshot> d = qs.documents;
-    print(d.length);
-    print(d[0].documentID);
-    print(d[0].data);
-
-    // List<dynamic> cover = d[0].data["Cover"];
-    // // cover.forEach((el) {
-    print(d[0].data["postImage"]);
-    // });
+  
     return d;
   }
 
   @override
   Widget build(BuildContext context) {
+    grpName = Provider.of<Params>(context).grpName;
     return new Scaffold(
       backgroundColor: Colors.white,
       body: WillPopScope(
         onWillPop: () {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Group()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => Group()));
         },
-              child: Column(
+        child: Column(
           children: <Widget>[
             new Center(
               child: sampleImage == null
@@ -141,7 +140,7 @@ class _GroupAState extends State<GroupA> {
                   if (snap.connectionState == ConnectionState.done) {
                     print(snap.data.length);
                     return Expanded(
-                                        child: GridView.builder(
+                      child: GridView.builder(
                         shrinkWrap: true,
                         itemCount: snap.data.length,
                         itemBuilder: (context, i) {
@@ -152,17 +151,22 @@ class _GroupAState extends State<GroupA> {
                               onTap: () {
                                 print("navigating");
 
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return PaperBack(d: snap.data[i]);
-                                }));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) {
+                                          return PaperBack();
+                                        },
+                                        settings: RouteSettings(
+                                            arguments: snap.data[i])));
                               },
                               child: Column(
                                 children: <Widget>[
                                   Container(
-                                    height:
-                                        MediaQuery.of(context).size.height * 0.3,
-                                    width: MediaQuery.of(context).size.width * 0.8,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.3,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
                                     child: Card(
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
@@ -180,7 +184,8 @@ class _GroupAState extends State<GroupA> {
                                                 snap.data[i].data["img"],
                                             fit: BoxFit.fill,
                                             placeholder: (context, url) => Center(
-                                                child: CircularProgressIndicator()),
+                                                child:
+                                                    CircularProgressIndicator()),
                                             errorWidget: (_, str, dynamic) =>
                                                 Center(
                                               child: Icon(Icons.error),
@@ -197,7 +202,10 @@ class _GroupAState extends State<GroupA> {
                                     ),
                                   ),
                                   Center(
-                                      child: Text(snap.data[i].data["title"],
+                                      child: Text(
+                                          snap.data[i].documentID +
+                                              "\n " +
+                                              snap.data[i].data["title"],
                                           style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 20,
@@ -267,18 +275,22 @@ class _GroupAState extends State<GroupA> {
                     ],
                   ),
                   TextFormField(
-                    decoration: new InputDecoration(labelText: 'Title'),
+                    keyboardType: TextInputType.number,
+                    decoration: new InputDecoration(labelText: 'PaperBack No'),
                     validator: (value) {
-                      return value.isEmpty ? 'Title is required' : null;
+                      return value.isEmpty ? 'PaperBack No is required' : null;
                     },
                     onSaved: (value) {
-                      return _myValue = value;
+                      return _myValue = int.parse(value);
                     },
                   ),
                   TextFormField(
-                    decoration: new InputDecoration(labelText: 'Description'),
+                    decoration:
+                        new InputDecoration(labelText: 'Title of PaperBack'),
                     validator: (value) {
-                      return value.isEmpty ? 'Description is required' : null;
+                      return value.isEmpty
+                          ? 'Title of PaperBack is required'
+                          : null;
                     },
                     onSaved: (value) {
                       return _description = value;

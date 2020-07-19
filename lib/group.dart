@@ -1,9 +1,9 @@
 import 'package:admin_website/GroupA.dart';
-import 'package:admin_website/groupB.dart';
+import 'package:admin_website/model/state.dart';
 import 'package:admin_website/selection.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'GroupA.dart';
-import 'groupB.dart';
 
 class Group extends StatefulWidget {
   @override
@@ -57,10 +57,11 @@ class _GroupState extends State<Group> {
 
       //     ]),
       body: WillPopScope(
-          onWillPop: () {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Selection()));
+        onWillPop: () {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => Selection()));
         },
-              child: ListView(
+        child: ListView(
           padding: EdgeInsets.all(30.0),
           children: <Widget>[
             Container(
@@ -74,6 +75,8 @@ class _GroupState extends State<Group> {
                     style: TextStyle(fontSize: 50.0),
                   )),
                   onTap: () {
+                    Provider.of<Params>(context, listen: false)
+                        .onGrpTap("GroupA");
                     Navigator.push(
                         context,
                         new MaterialPageRoute(
@@ -92,10 +95,13 @@ class _GroupState extends State<Group> {
                     style: TextStyle(fontSize: 50.0),
                   )),
                   onTap: () {
+                    Provider.of<Params>(context, listen: false)
+                        .onGrpTap("GroupB");
+
                     Navigator.push(
                         context,
                         new MaterialPageRoute(
-                            builder: (context) => new GroupB()));
+                            builder: (context) => new GroupA()));
                   }),
             ),
           ],

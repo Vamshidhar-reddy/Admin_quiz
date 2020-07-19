@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:admin_website/model/state.dart';
 import 'package:admin_website/paperback.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -9,26 +10,30 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
+import 'package:provider/provider.dart';
+
+import 'cover.dart';
 
 class PaperBack extends StatefulWidget {
-  DocumentSnapshot d;
-  PaperBack({this.d});
   @override
   _PaperBackState createState() => _PaperBackState();
 }
 
 class _PaperBackState extends State<PaperBack> {
+  String grpName;
   DocumentSnapshot d;
   File sampleImage;
-  String _myValue;
+  int _myValue;
   String _description;
   String postUrl;
+  String uploadTopic;
   String cardUrl;
   String _d;
   String _group;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   List<String> image = List<String>();
-  Map<String, String> cover;
+  Map<String, String> Topic;
+  List<String> cover = [];
 
   var url;
 
@@ -43,27 +48,25 @@ class _PaperBackState extends State<PaperBack> {
     }
   }
 
-  @override
-  void initState() {
-    Map cover = {
-      "_myValue": "postUrl",
-      "_myValu": "postUrl",
-    };
-    super.initState();
-    d = widget.d;
-    print(" ${cover.values.toList()[1]}");
-  }
+  // @override
+  // void initState() {
+  //   grpName = widget.wchGrp;
+
+  //   super.initState();
+  //   d = widget.d;
+  //   // print(" ${cover.values.toList()[1]}");
+  // }
 
   void uploadStatusImage() async {
     if (validateAndSave()) {
+      print("this is doc id");
       final StorageReference postImageRef = FirebaseStorage.instance
           .ref()
-          .child("PaperBacks/GroupA/${d.data["title"]}");
+          .child("PaperBacks/$grpName/${d.documentID}");
 
       var timeKey = new DateTime.now();
-      final StorageUploadTask uploadTask = postImageRef
-          .child(path.basenameWithoutExtension(sampleImage.path))
-          .putFile(sampleImage);
+      final StorageUploadTask uploadTask =
+          postImageRef.child("T$_myValue-$_description").putFile(sampleImage);
 
       var PostUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
       postUrl = PostUrl.toString();
@@ -76,33 +79,44 @@ class _PaperBackState extends State<PaperBack> {
   }
 
   void saveToDatabase(String url) {
-    final ref = Firestore.instance.collection("GroupA");
+    final ref = Firestore.instance.collection("$grpName");
+    print(grpName);
+    Map<String, dynamic> Topic = d.data["Topic"];
 
-    Map<String, dynamic> cover = d.data["Cover"];
-    cover.putIfAbsent( _myValue,() => postUrl.toString() );
-    d.data["Cover"].putIfAbsent(
-      _myValue,() => postUrl.toString(),
-    );
-    var data = {"Cover": cover};
-    ref.document("${d.data["title"]}").updateData(data);
+    Topic.putIfAbsent("$_myValue??$_description??$postUrl",
+        () => cover); //0 is id 1 is name 2 is link
+    // d.data["Topic"].putIfAbsent(
+    //   "$_myValue-$_description-$postUrl.toString()",
+    //   () => cover,
+    // );
+    var data = {"Topic": Topic};
+    ref.document("${d.documentID}").updateData(data);
   }
 
   getName() async {
     final db = Firestore.instance;
     DocumentSnapshot qs;
     qs = await Firestore.instance
-        .collection("GroupA")
-        .document(d.data["title"])
+        .collection("$grpName")
+        .document(d.documentID)
         .get();
     print("doc");
-    setState(() {
+    // print(d.data["Topic"].keys.toList()[0]);
+    print("get name function end");
+
+    // setState(() {
       d = qs;
-    });
+          Provider.of<Params>(context, listen: false).updateDoc(d);
+
     // });
+    // });
+    return d;
   }
 
   @override
   Widget build(BuildContext context) {
+    grpName = Provider.of<Params>(context).grpName;
+    d = ModalRoute.of(context).settings.arguments;
     Future getDisplayImage() async {
       var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
@@ -115,95 +129,117 @@ class _PaperBackState extends State<PaperBack> {
     return new Scaffold(
       backgroundColor: Colors.white,
       body: WillPopScope(
-        onWillPop: () { Navigator.pushReplacementNamed(context, "groupA");},
-              child: Column(
-        
+        onWillPop: () {
+          Navigator.pushReplacementNamed(context, "groupA");
+        },
+        child: Column(
           children: <Widget>[
             new Center(
                 child: Padding(
               padding: EdgeInsets.all(50),
               child: Text(
-                "Cover Images Screen",
+                "Topic Images Screen",
                 style: TextStyle(fontSize: 30.0),
               ),
             )),
-            // FutureBuilder<List<DocumentSnapshot>>(
+            // FutureBuilder(
             //     future: getName(),
             //     builder: (context, snap) {
             //       if (snap.connectionState == ConnectionState.done) {
-            //         print(snap.data.length);
-            // return
-            Expanded(
-                        child: GridView.builder(
-                scrollDirection: Axis.vertical,
-                // shrinkWrap: true,
-                itemCount: d.data["Cover"].keys.toList().length,
-                itemBuilder: (context, i) {
-                  print("inside grid");
+            //         return
+            Consumer<Params>(builder: (context, obj, _) {
+              d = obj.docSnap??d;
+              return Expanded(
+                child: GridView.builder(
+                  reverse: true,
+                  scrollDirection: Axis.vertical,
+                  // shrinkWrap: true,
+                  itemCount:d.data["Topic"].keys.toList().length,
+                  itemBuilder: (context, i) {
+                    print("inside grid");
+                    // print(d.data["Topic"].keys.toList()[i].split('??')[i]);
+                    return Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          print("navigating");
+                          Provider.of<Params>(context, listen: false).topicTap(
+                              '''PaperBacks/$grpName/${d.documentID}/T${d.data["Topic"].keys.toList()[i].split('??')[0]}-${d.data["Topic"].keys.toList()[i].split('??')[1]}''',
+                              d.data["Topic"].keys.toList()[i],
+                              i);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) {
+                                    print(grpName);
+                                    return Cover();
+                                  },
+                                  settings: RouteSettings(arguments: d)));
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              height: MediaQuery.of(context).size.height * 0.3,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 4.0,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: GridTile(
+                                    // child:
+                                    //  Hero(
+                                    //   tag: i,
+                                    child: CachedNetworkImage(
+                                      imageUrl:
+                                          // "http://via.placeholder.com/350x200",
 
-                  return Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        print("navigating");
-
-                        // Navigator.pushNamed(context, "cover",
-                        //     arguments: snap.data);
-                      },
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            height: MediaQuery.of(context).size.height * 0.3,
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              elevation: 4.0,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: GridTile(
-                                  // child:
-                                  //  Hero(
-                                  //   tag: i,
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        // "http://via.placeholder.com/350x200",
-
-                                        d.data["Cover"].values
-                                            .toList()[i]
-                                            .toString(),
-                                    fit: BoxFit.fill,
-                                    placeholder: (context, url) =>
-                                        Center(child: CircularProgressIndicator()),
-                                    errorWidget: (_, str, dynamic) => Center(
-                                      child: Icon(Icons.error),
+                                          d.data["Topic"].keys
+                                              .toList()[i]
+                                              .split('??')[2],
+                                      fit: BoxFit.fill,
+                                      placeholder: (context, url) => Center(
+                                          child: CircularProgressIndicator()),
+                                      errorWidget: (_, str, dynamic) => Center(
+                                        child: Icon(Icons.error),
+                                      ),
                                     ),
+                                    // ),
                                   ),
-                                  // ),
                                 ),
                               ),
                             ),
-                          ),
-                          Center(
-                              child: Text(
-                                  d.data["Cover"].keys.toList()[i].toString(),
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold)))
-                        ],
+                            Center(
+                                child: Text(
+                                    "Topic " +
+                                        d.data["Topic"].keys
+                                            .toList()[i]
+                                            .split('??')[0] +
+                                        "\n" +
+                                        d.data["Topic"].keys
+                                            .toList()[i]
+                                            .split('??')[1],
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold)))
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
-                  childAspectRatio: 1.3,
-                  crossAxisSpacing: 0,
-                  mainAxisSpacing: 0,
+                    );
+                  },
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: 1.3,
+                    crossAxisSpacing: 0,
+                    mainAxisSpacing: 0,
+                  ),
                 ),
-              ),
-            )
+              );
+            })
+            //     ;
+            //   }
 
             //   if (snap.connectionState == ConnectionState.waiting) {
             //     return Center(child: CircularProgressIndicator());
@@ -264,20 +300,21 @@ class _PaperBackState extends State<PaperBack> {
                         ],
                       ),
                       TextFormField(
-                        decoration: new InputDecoration(labelText: 'Title'),
+                        keyboardType: TextInputType.number,
+                        decoration: new InputDecoration(labelText: 'Topic No'),
                         validator: (value) {
-                          return value.isEmpty ? 'Title is required' : null;
+                          return value.isEmpty ? 'Topic No is required' : null;
                         },
                         onSaved: (value) {
-                          return _myValue = value;
+                          return _myValue = int.parse(value);
                         },
                       ),
                       TextFormField(
                         decoration:
-                            new InputDecoration(labelText: 'Description'),
+                            new InputDecoration(labelText: 'Topic Name'),
                         validator: (value) {
                           return value.isEmpty
-                              ? 'Description is required'
+                              ? 'Topic Name is required'
                               : null;
                         },
                         onSaved: (value) {

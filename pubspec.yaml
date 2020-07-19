@@ -38,6 +38,7 @@ dependencies:
   firebase_analytics:
   flutter_plugin_pdf_viewer:
   firebase_auth:
+  provider:
   cloud_firestore: 
   cached_network_image: 
   http:
