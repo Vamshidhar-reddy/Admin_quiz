@@ -24,14 +24,10 @@ class _PaperBackState extends State<PaperBack> {
   DocumentSnapshot d;
   File sampleImage;
   int _myValue;
+  String _docId;
   String _description;
   String postUrl;
-  String uploadTopic;
-  String cardUrl;
-  String _d;
-  String _group;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  List<String> image = List<String>();
   Map<String, String> Topic;
   List<String> cover = [];
 
@@ -57,7 +53,7 @@ class _PaperBackState extends State<PaperBack> {
   //   // print(" ${cover.values.toList()[1]}");
   // }
 
-  void uploadStatusImage() async {
+  void uploadStatusImage(BuildContext context) async {
     if (validateAndSave()) {
       print("this is doc id");
       final StorageReference postImageRef = FirebaseStorage.instance
@@ -72,7 +68,7 @@ class _PaperBackState extends State<PaperBack> {
       postUrl = PostUrl.toString();
       print("Post Url =" + postUrl);
       saveToDatabase(postUrl);
-      getName();
+      getName(context);
       Navigator.of(context, rootNavigator: true).pop();
       //     context, MaterialPageRoute(builder: (context) => PaperBack()));
     }
@@ -90,14 +86,14 @@ class _PaperBackState extends State<PaperBack> {
     //   () => cover,
     // );
     var data = {"Topic": Topic};
-    ref.document("${d.documentID}").updateData(data);
+    ref.document(d.documentID).updateData(data);
   }
 
-  getName() async {
+  getName(BuildContext context) async {
     final db = Firestore.instance;
     DocumentSnapshot qs;
     qs = await Firestore.instance
-        .collection("$grpName")
+        .collection(grpName)
         .document(d.documentID)
         .get();
     print("doc");
@@ -105,8 +101,8 @@ class _PaperBackState extends State<PaperBack> {
     print("get name function end");
 
     // setState(() {
-      d = qs;
-          Provider.of<Params>(context, listen: false).updateDoc(d);
+    d = qs;
+    Provider.of<Params>(context, listen: false).updateDoc(d);
 
     // });
     // });
@@ -116,7 +112,7 @@ class _PaperBackState extends State<PaperBack> {
   @override
   Widget build(BuildContext context) {
     grpName = Provider.of<Params>(context).grpName;
-    d = ModalRoute.of(context).settings.arguments;
+    d =Provider.of<Params>(context).docSnap;
     Future getDisplayImage() async {
       var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
@@ -148,13 +144,13 @@ class _PaperBackState extends State<PaperBack> {
             //       if (snap.connectionState == ConnectionState.done) {
             //         return
             Consumer<Params>(builder: (context, obj, _) {
-              d = obj.docSnap??d;
+              d = obj.docSnap ?? d;
               return Expanded(
                 child: GridView.builder(
-                  reverse: true,
+                  // reverse: true,
                   scrollDirection: Axis.vertical,
                   // shrinkWrap: true,
-                  itemCount:d.data["Topic"].keys.toList().length,
+                  itemCount: d.data["Topic"].keys.toList().length,
                   itemBuilder: (context, i) {
                     print("inside grid");
                     // print(d.data["Topic"].keys.toList()[i].split('??')[i]);
@@ -173,7 +169,7 @@ class _PaperBackState extends State<PaperBack> {
                                     print(grpName);
                                     return Cover();
                                   },
-                                  settings: RouteSettings(arguments: d)));
+                                 ));
                         },
                         child: Column(
                           children: <Widget>[
@@ -277,12 +273,12 @@ class _PaperBackState extends State<PaperBack> {
   enableUpload(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => Material(
+      builder: (contex) => Material(
         child: SingleChildScrollView(
           child: Center(
             child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height - 200,
+                width: MediaQuery.of(contex).size.width * 0.8,
+                height: MediaQuery.of(contex).size.height - 200,
                 child: new Form(
                   key: formKey,
                   child: Column(
@@ -333,7 +329,7 @@ class _PaperBackState extends State<PaperBack> {
                       SizedBox(height: 15.0),
                       RaisedButton(
                         color: Colors.black,
-                        onPressed: uploadStatusImage,
+                        onPressed:()=> uploadStatusImage(context),
                         elevation: 4.0,
                         splashColor: Colors.blueGrey,
                         child: Text(

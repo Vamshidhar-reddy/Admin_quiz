@@ -7,7 +7,9 @@ class Params extends ChangeNotifier {
   String _topicKey;
   int _topicIndex;
   DocumentSnapshot _docSnap=null;
+
   DocumentSnapshot get docSnap => _docSnap;
+
 
   String get grpName => _grpName;
   String get folder => _folder;
@@ -31,4 +33,5 @@ class Params extends ChangeNotifier {
     _docSnap = doc;
     notifyListeners();
   }
+
 }

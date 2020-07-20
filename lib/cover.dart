@@ -59,7 +59,7 @@ class _CoverState extends State<Cover> {
   //   // print(" ${cover.values.toList()[1]}");
   // }
 
-  void uploadStatusImage() async {
+  void uploadStatusImage(BuildContext context) async {
     if (validateAndSave()) {
       print("this is doc id $folder");
       final StorageReference postImageRef =
@@ -72,7 +72,7 @@ class _CoverState extends State<Cover> {
       postUrl = PostUrl.toString();
       print("Post Url =" + postUrl);
       saveToDatabase(postUrl);
-      getName();
+      getName(context);
       Navigator.of(context, rootNavigator: true).pop();
       //     context, MaterialPageRoute(builder: (context) => PaperBack()));
     }
@@ -100,7 +100,7 @@ class _CoverState extends State<Cover> {
     ref.document("${d.documentID}").updateData(data);
   }
 
-  getName() async {
+  getName(BuildContext contex) async {
     final db = Firestore.instance;
     DocumentSnapshot qs;
     qs = await Firestore.instance
@@ -108,12 +108,10 @@ class _CoverState extends State<Cover> {
         .document(d.documentID)
         .get();
     print("doc");
-    // print(d.data["Topic"].keys.toList()[topicIndex]);
-
-    setState(() {
+  
       d = qs;
-    });
-    // });
+      Provider.of<Params>(contex, listen: false).updateDoc(d);
+   
   }
 
   @override
@@ -124,7 +122,6 @@ class _CoverState extends State<Cover> {
 
     folder = Provider.of<Params>(context).folder;
     topicKey = Provider.of<Params>(context).topicKey;
-    d = ModalRoute.of(context).settings.arguments;
     Future getDisplayImage() async {
       var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
@@ -139,7 +136,7 @@ class _CoverState extends State<Cover> {
       backgroundColor: Colors.white,
       body: WillPopScope(
         onWillPop: () {
-          Navigator.pushReplacementNamed(context, "groupA");
+          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>PaperBack()) );
         },
         child: Column(
           children: <Widget>[
@@ -267,12 +264,12 @@ class _CoverState extends State<Cover> {
   enableUpload(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => Material(
+      builder: (contex) => Material(
         child: SingleChildScrollView(
           child: Center(
             child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height - 200,
+                width: MediaQuery.of(contex).size.width * 0.8,
+                height: MediaQuery.of(contex).size.height - 200,
                 child: new Form(
                   key: formKey,
                   child: Column(
@@ -314,7 +311,7 @@ class _CoverState extends State<Cover> {
                       SizedBox(height: 15.0),
                       RaisedButton(
                         color: Colors.black,
-                        onPressed: uploadStatusImage,
+                        onPressed: ()=>uploadStatusImage(context),
                         elevation: 4.0,
                         splashColor: Colors.blueGrey,
                         child: Text(

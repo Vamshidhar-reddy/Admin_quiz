@@ -107,13 +107,15 @@ class _GroupAState extends State<GroupA> {
     qs = await Firestore.instance.collection("$grpName").getDocuments();
     print("doc");
     List<DocumentSnapshot> d = qs.documents;
-  
+
     return d;
   }
 
   @override
   Widget build(BuildContext context) {
     grpName = Provider.of<Params>(context).grpName;
+    var docProvider = Provider.of<Params>(context, listen: false);
+
     return new Scaffold(
       backgroundColor: Colors.white,
       body: WillPopScope(
@@ -150,15 +152,12 @@ class _GroupAState extends State<GroupA> {
                             child: GestureDetector(
                               onTap: () {
                                 print("navigating");
-
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) {
-                                          return PaperBack();
-                                        },
-                                        settings: RouteSettings(
-                                            arguments: snap.data[i])));
+                                docProvider.updateDoc(snap.data[i]);
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) {
+                                    return PaperBack();
+                                  },
+                                ));
                               },
                               child: Column(
                                 children: <Widget>[

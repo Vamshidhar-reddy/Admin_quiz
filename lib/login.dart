@@ -92,7 +92,7 @@ class _LoginState extends State<Login> {
   }
 
   String validateName(String value) {
-    if (value == 'quizoraAdmin1') {
+    if (value == 'quizadmin') {
       return null;
     } else {
       return "Username is incorrect";

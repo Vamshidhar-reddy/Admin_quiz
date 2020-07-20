@@ -38,8 +38,8 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        // home: Login(),
-        home:Group()
+        home: Login(),
+        // home:Group()
       ),
     );
   }
