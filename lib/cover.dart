@@ -27,13 +27,8 @@ class _CoverState extends State<Cover> {
   int _myValue;
   String _description;
   String postUrl;
-  String uploadTopic;
-  String cardUrl;
   String _d;
-  String _group;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  List<String> image = List<String>();
-  Map<String, String> Topic;
   List<dynamic> cover = [];
 
   var url;
@@ -49,22 +44,11 @@ class _CoverState extends State<Cover> {
     }
   }
 
-  // @override
-  // void initState() {
-  //   folder = widget.folder;
-  //   topicKey = widget.topicKey;
-
-  //   super.initState();
-  //   d = widget.d;
-  //   // print(" ${cover.values.toList()[1]}");
-  // }
-
   void uploadStatusImage(BuildContext context) async {
     if (validateAndSave()) {
       print("this is doc id $folder");
       final StorageReference postImageRef =
           FirebaseStorage.instance.ref().child("${folder}");
-      var timeKey = new DateTime.now();
       final StorageUploadTask uploadTask =
           postImageRef.child("$_description").putFile(sampleImage);
 
@@ -108,10 +92,9 @@ class _CoverState extends State<Cover> {
         .document(d.documentID)
         .get();
     print("doc");
-  
-      d = qs;
-      Provider.of<Params>(contex, listen: false).updateDoc(d);
-   
+
+    d = qs;
+    Provider.of<Params>(contex, listen: false).updateDoc(d);
   }
 
   @override
@@ -136,7 +119,8 @@ class _CoverState extends State<Cover> {
       backgroundColor: Colors.white,
       body: WillPopScope(
         onWillPop: () {
-          Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>PaperBack()) );
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => PaperBack()));
         },
         child: Column(
           children: <Widget>[
@@ -144,7 +128,7 @@ class _CoverState extends State<Cover> {
                 child: Padding(
               padding: EdgeInsets.all(50),
               child: Text(
-                "Cover Images Screen",
+                "$grpName ${d.documentID} Cover Images Screen",
                 style: TextStyle(fontSize: 30.0),
               ),
             )),
@@ -241,24 +225,7 @@ class _CoverState extends State<Cover> {
         onPressed: getDisplayImage,
       ),
     );
-    // return Container(
-    //     color: Colors.amber,
-    //     child: Center(
-    //       child: Column(
-    //           mainAxisAlignment: MainAxisAlignment.center,
-    //           crossAxisAlignment: CrossAxisAlignment.center,
-    //           children: <Widget>[
-    //             sampleImage == null
-    //                 ? RaisedButton(
-    //                     onPressed: getDisplayImage,
-    //                     child: Text(
-    //                       "Make A Post",
-    //                       style: TextStyle(fontSize: 40),
-    //                       textAlign: TextAlign.center,
-    //                     ))
-    //                 : enableUpload(),
-    //           ]),
-    //     ));
+  
   }
 
   enableUpload(BuildContext context) {
@@ -311,7 +278,7 @@ class _CoverState extends State<Cover> {
                       SizedBox(height: 15.0),
                       RaisedButton(
                         color: Colors.black,
-                        onPressed: ()=>uploadStatusImage(context),
+                        onPressed: () => uploadStatusImage(context),
                         elevation: 4.0,
                         splashColor: Colors.blueGrey,
                         child: Text(

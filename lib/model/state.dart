@@ -6,16 +6,21 @@ class Params extends ChangeNotifier {
   String _grpName, _folder;
   String _topicKey;
   int _topicIndex;
-  DocumentSnapshot _docSnap=null;
+  DocumentSnapshot _docSnap = null;
+  String _newsGrpName;
+  String get newsGrpName => _newsGrpName;
 
   DocumentSnapshot get docSnap => _docSnap;
-
 
   String get grpName => _grpName;
   String get folder => _folder;
   String get topicKey => _topicKey;
 
   int get topicIndex => _topicIndex;
+  void onNewsTap(String news) {
+    _newsGrpName = news;
+    notifyListeners();
+  }
 
   void onGrpTap(String grp) {
     _grpName = grp;
@@ -33,5 +38,4 @@ class Params extends ChangeNotifier {
     _docSnap = doc;
     notifyListeners();
   }
-
 }

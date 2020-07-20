@@ -2,7 +2,7 @@ import 'package:admin_website/group.dart';
 import 'package:admin_website/model/state.dart';
 import 'package:admin_website/paperback.dart';
 import 'package:admin_website/selection.dart';
-import 'package:admin_website/uploadData.dart';
+import 'package:admin_website/news.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -21,17 +21,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<Params>( 
+    return ChangeNotifierProvider<Params>(
       create: (context) => Params(),
-          child: MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
         routes: <String, WidgetBuilder>{
           '/login': (BuildContext context) => Login(),
-          'upload': (BuildContext context) => UploadData(),
-                  'cover': (BuildContext context) => PaperBack(),
-                                  'groupA': (BuildContext context) => GroupA(),
-
-
+          'news': (BuildContext context) => News(),
+          'cover': (BuildContext context) => PaperBack(),
+          'groupA': (BuildContext context) => GroupA(),
         },
         title: 'Flutter Demo',
         theme: ThemeData(

@@ -61,7 +61,7 @@ class _GroupAState extends State<GroupA> {
   void uploadStatusImage() async {
     if (validateAndSave()) {
       final StorageReference postImageRef =
-          FirebaseStorage.instance.ref().child("PaperBacks/$grpName/");
+          FirebaseStorage.instance.ref().child("$grpName/");
 
       var timeKey = new DateTime.now();
       final StorageUploadTask uploadTask =
@@ -130,7 +130,7 @@ class _GroupAState extends State<GroupA> {
                   ? Padding(
                       padding: EdgeInsets.all(50),
                       child: Text(
-                        "PaperBacks Screen",
+                        "$grpName PaperBacks Screen",
                         style: TextStyle(fontSize: 30.0),
                       ),
                     )

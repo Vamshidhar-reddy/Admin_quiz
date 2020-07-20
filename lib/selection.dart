@@ -1,5 +1,6 @@
-import 'package:admin_website/uploadData.dart';
+import 'package:admin_website/news.dart';
 import 'package:flutter/material.dart';
+import 'newsGroup.dart';
 import 'package:admin_website/group.dart';
 class Selection extends StatefulWidget {
   @override
@@ -69,7 +70,7 @@ class _SelectionState extends State<Selection> {
                   Navigator.push(
                       context,
                       new MaterialPageRoute(
-                          builder: (context) => new UploadData()));
+                          builder: (context) => new NewsGroup()));
                 }),
           ),
           Padding(padding: EdgeInsets.all(15.0)),

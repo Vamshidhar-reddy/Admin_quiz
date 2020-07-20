@@ -56,9 +56,8 @@ class _PaperBackState extends State<PaperBack> {
   void uploadStatusImage(BuildContext context) async {
     if (validateAndSave()) {
       print("this is doc id");
-      final StorageReference postImageRef = FirebaseStorage.instance
-          .ref()
-          .child("PaperBacks/$grpName/${d.documentID}");
+      final StorageReference postImageRef =
+          FirebaseStorage.instance.ref().child("$grpName/${d.documentID}");
 
       var timeKey = new DateTime.now();
       final StorageUploadTask uploadTask =
@@ -112,7 +111,7 @@ class _PaperBackState extends State<PaperBack> {
   @override
   Widget build(BuildContext context) {
     grpName = Provider.of<Params>(context).grpName;
-    d =Provider.of<Params>(context).docSnap;
+    d = Provider.of<Params>(context).docSnap;
     Future getDisplayImage() async {
       var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
 
@@ -134,7 +133,7 @@ class _PaperBackState extends State<PaperBack> {
                 child: Padding(
               padding: EdgeInsets.all(50),
               child: Text(
-                "Topic Images Screen",
+                "$grpName ${d.documentID} Topic Images Screen",
                 style: TextStyle(fontSize: 30.0),
               ),
             )),
@@ -159,17 +158,15 @@ class _PaperBackState extends State<PaperBack> {
                         onTap: () {
                           print("navigating");
                           Provider.of<Params>(context, listen: false).topicTap(
-                              '''PaperBacks/$grpName/${d.documentID}/T${d.data["Topic"].keys.toList()[i].split('??')[0]}-${d.data["Topic"].keys.toList()[i].split('??')[1]}''',
+                              '''$grpName/${d.documentID}/T${d.data["Topic"].keys.toList()[i].split('??')[0]}-${d.data["Topic"].keys.toList()[i].split('??')[1]}''',
                               d.data["Topic"].keys.toList()[i],
                               i);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) {
-                                    print(grpName);
-                                    return Cover();
-                                  },
-                                 ));
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              print(grpName);
+                              return Cover();
+                            },
+                          ));
                         },
                         child: Column(
                           children: <Widget>[
@@ -329,7 +326,7 @@ class _PaperBackState extends State<PaperBack> {
                       SizedBox(height: 15.0),
                       RaisedButton(
                         color: Colors.black,
-                        onPressed:()=> uploadStatusImage(context),
+                        onPressed: () => uploadStatusImage(context),
                         elevation: 4.0,
                         splashColor: Colors.blueGrey,
                         child: Text(
