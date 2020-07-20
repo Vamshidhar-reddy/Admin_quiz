@@ -68,7 +68,10 @@ class _PaperBackState extends State<PaperBack> {
       print("Post Url =" + postUrl);
       saveToDatabase(postUrl);
       getName(context);
-      Navigator.of(context, rootNavigator: true).pop();
+      setState(() {
+        sampleImage = null;
+      });
+      // Navigator.pushReplacement(
       //     context, MaterialPageRoute(builder: (context) => PaperBack()));
     }
   }
@@ -118,7 +121,7 @@ class _PaperBackState extends State<PaperBack> {
       setState(() {
         sampleImage = tempImage;
       });
-      enableUpload(context);
+      // enableUpload(context);
     }
 
     return new Scaffold(
@@ -130,13 +133,15 @@ class _PaperBackState extends State<PaperBack> {
         child: Column(
           children: <Widget>[
             new Center(
-                child: Padding(
-              padding: EdgeInsets.all(50),
-              child: Text(
-                "$grpName ${d.documentID} Topic Images Screen",
-                style: TextStyle(fontSize: 30.0),
-              ),
-            )),
+                child: sampleImage == null
+                    ? Padding(
+                        padding: EdgeInsets.all(50),
+                        child: Text(
+                          "$grpName ${d.documentID} Topic Images Screen",
+                          style: TextStyle(fontSize: 30.0),
+                        ),
+                      )
+                    : enableUpload(context)),
             // FutureBuilder(
             //     future: getName(),
             //     builder: (context, snap) {
@@ -267,77 +272,70 @@ class _PaperBackState extends State<PaperBack> {
     //     ));
   }
 
-  enableUpload(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (contex) => Material(
-        child: SingleChildScrollView(
-          child: Center(
-            child: Container(
-                width: MediaQuery.of(contex).size.width * 0.8,
-                height: MediaQuery.of(contex).size.height - 200,
-                child: new Form(
-                  key: formKey,
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Center(
-                                child: Image.file(sampleImage,
-                                    height: 200,
-                                    width: 150,
-                                    fit: BoxFit.contain)),
-                          ),
-                        ],
-                      ),
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: new InputDecoration(labelText: 'Topic No'),
-                        validator: (value) {
-                          return value.isEmpty ? 'Topic No is required' : null;
-                        },
-                        onSaved: (value) {
-                          return _myValue = int.parse(value);
-                        },
-                      ),
-                      TextFormField(
-                        decoration:
-                            new InputDecoration(labelText: 'Topic Name'),
-                        validator: (value) {
-                          return value.isEmpty
-                              ? 'Topic Name is required'
-                              : null;
-                        },
-                        onSaved: (value) {
-                          return _description = value;
-                        },
-                      ),
-                      // TextFormField(
-                      //   decoration: new InputDecoration(labelText: 'd'),
-                      //   validator: (value) {
-                      //     return value.isEmpty ? 'd is required' : null;
-                      //   },
-                      //   onSaved: (value) {
-                      //     return _d = value;
-                      //   },
-                      // ),
-                      SizedBox(height: 15.0),
-                      RaisedButton(
-                        color: Colors.black,
-                        onPressed: () => uploadStatusImage(context),
-                        elevation: 4.0,
-                        splashColor: Colors.blueGrey,
-                        child: Text(
-                          'Upload',
-                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+  Widget enableUpload(BuildContext contex) {
+    return Dialog(
+      child: SingleChildScrollView(
+        child: Center(
+          child: Container(
+              margin: EdgeInsets.only(top: 40),
+              width: MediaQuery.of(contex).size.width * 0.8,
+              height: MediaQuery.of(contex).size.height - 200,
+              child: new Form(
+                key: formKey,
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Center(
+                              child: Image.file(sampleImage,
+                                  height: 250, width: 150, fit: BoxFit.fill)),
                         ),
+                      ],
+                    ),
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      decoration: new InputDecoration(labelText: 'Topic No'),
+                      validator: (value) {
+                        return value.isEmpty ? 'Topic No is required' : null;
+                      },
+                      onSaved: (value) {
+                        return _myValue = int.parse(value);
+                      },
+                    ),
+                    TextFormField(
+                      decoration: new InputDecoration(labelText: 'Topic Name'),
+                      validator: (value) {
+                        return value.isEmpty ? 'Topic Name is required' : null;
+                      },
+                      onSaved: (value) {
+                        return _description = value;
+                      },
+                    ),
+                    // TextFormField(
+                    //   decoration: new InputDecoration(labelText: 'd'),
+                    //   validator: (value) {
+                    //     return value.isEmpty ? 'd is required' : null;
+                    //   },
+                    //   onSaved: (value) {
+                    //     return _d = value;
+                    //   },
+                    // ),
+                    SizedBox(height: 15.0),
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () => uploadStatusImage(context),
+                      elevation: 4.0,
+                      splashColor: Colors.blueGrey,
+                      child: Text(
+                        'Upload',
+                        style: TextStyle(color: Colors.white, fontSize: 16.0),
                       ),
-                    ],
-                  ),
-                )),
-          ),
+                    ),
+                  ],
+                ),
+              )),
         ),
       ),
     );

@@ -57,7 +57,9 @@ class _CoverState extends State<Cover> {
       print("Post Url =" + postUrl);
       saveToDatabase(postUrl);
       getName(context);
-      Navigator.of(context, rootNavigator: true).pop();
+      setState(() {
+        sampleImage = null;
+      });
       //     context, MaterialPageRoute(builder: (context) => PaperBack()));
     }
   }
@@ -111,7 +113,6 @@ class _CoverState extends State<Cover> {
       setState(() {
         sampleImage = tempImage;
       });
-      enableUpload(context);
     }
 
     // print(" ${d.data["Topic"].values.toList()[topicIndex][0]}");
@@ -125,13 +126,16 @@ class _CoverState extends State<Cover> {
         child: Column(
           children: <Widget>[
             new Center(
-                child: Padding(
-              padding: EdgeInsets.all(50),
-              child: Text(
-                "$grpName ${d.documentID} Cover Images Screen",
-                style: TextStyle(fontSize: 30.0),
-              ),
-            )),
+                child: sampleImage == null
+                    ? Padding(
+                        padding: EdgeInsets.all(50),
+                        child: Text(
+                          "$grpName ${d.documentID}\n Topic-$topicIndex \n Cover Images Screen",
+                          style: TextStyle(fontSize: 30.0),
+                        ),
+                      )
+                    : enableUpload(context)),
+
             // FutureBuilder<List<DocumentSnapshot>>(
             //     future: getName(),topicIndex
             //     builder: (context, snap) {
@@ -225,71 +229,67 @@ class _CoverState extends State<Cover> {
         onPressed: getDisplayImage,
       ),
     );
-  
   }
 
-  enableUpload(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (contex) => Material(
-        child: SingleChildScrollView(
-          child: Center(
-            child: Container(
-                width: MediaQuery.of(contex).size.width * 0.8,
-                height: MediaQuery.of(contex).size.height - 200,
-                child: new Form(
-                  key: formKey,
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Center(
-                                child: Image.file(sampleImage,
-                                    height: 200,
-                                    width: 150,
-                                    fit: BoxFit.contain)),
-                          ),
-                        ],
-                      ),
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: new InputDecoration(labelText: 'Cover No'),
-                        validator: (value) {
-                          return value.isEmpty ? 'Cover No is required' : null;
-                        },
-                        onSaved: (value) {
-                          return _myValue = int.parse(value);
-                        },
-                      ),
-                      TextFormField(
-                        decoration:
-                            new InputDecoration(labelText: 'Cover Image Name'),
-                        validator: (value) {
-                          return value.isEmpty
-                              ? 'Cover Image Name is required'
-                              : null;
-                        },
-                        onSaved: (value) {
-                          return _d = value;
-                        },
-                      ),
-                      SizedBox(height: 15.0),
-                      RaisedButton(
-                        color: Colors.black,
-                        onPressed: () => uploadStatusImage(context),
-                        elevation: 4.0,
-                        splashColor: Colors.blueGrey,
-                        child: Text(
-                          'Upload',
-                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+  Widget enableUpload(BuildContext context) {
+    return Dialog(
+      child: SingleChildScrollView(
+        child: Center(
+          child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height - 200,
+              child: new Form(
+                key: formKey,
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Center(
+                              child: Image.file(sampleImage,
+                                  height: 200,
+                                  width: 150,
+                                  fit: BoxFit.contain)),
                         ),
+                      ],
+                    ),
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      decoration: new InputDecoration(labelText: 'Cover No'),
+                      validator: (value) {
+                        return value.isEmpty ? 'Cover No is required' : null;
+                      },
+                      onSaved: (value) {
+                        return _myValue = int.parse(value);
+                      },
+                    ),
+                    TextFormField(
+                      decoration:
+                          new InputDecoration(labelText: 'Cover Image Name'),
+                      validator: (value) {
+                        return value.isEmpty
+                            ? 'Cover Image Name is required'
+                            : null;
+                      },
+                      onSaved: (value) {
+                        return _d = value;
+                      },
+                    ),
+                    SizedBox(height: 15.0),
+                    RaisedButton(
+                      color: Colors.black,
+                      onPressed: () => uploadStatusImage(context),
+                      elevation: 4.0,
+                      splashColor: Colors.blueGrey,
+                      child: Text(
+                        'Upload',
+                        style: TextStyle(color: Colors.white, fontSize: 16.0),
                       ),
-                    ],
-                  ),
-                )),
-          ),
+                    ),
+                  ],
+                ),
+              )),
         ),
       ),
     );
