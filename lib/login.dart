@@ -13,6 +13,20 @@ TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
 class _LoginState extends State<Login> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextEditingController pwd = TextEditingController();
+  @override
+  void dispose() {
+    super.dispose();
+    pwd.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    pwd.text = "";
+  }
+
+  String s = "*";
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +65,9 @@ class _LoginState extends State<Login> {
                       ),
                       Padding(padding: EdgeInsets.all(10.0)),
                       TextFormField(
-                        obscureText: true,
+                       
+                        // controller: pwd,
+                        // obscureText: true,
                         validator: validatePassword,
                         decoration: InputDecoration(
                             contentPadding:

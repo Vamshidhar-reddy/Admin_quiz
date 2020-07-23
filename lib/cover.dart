@@ -25,7 +25,6 @@ class _CoverState extends State<Cover> {
   int topicIndex;
   File sampleImage;
   int _myValue;
-  String _description;
   String postUrl;
   String _d;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -50,7 +49,7 @@ class _CoverState extends State<Cover> {
       final StorageReference postImageRef =
           FirebaseStorage.instance.ref().child("${folder}");
       final StorageUploadTask uploadTask =
-          postImageRef.child("$_description").putFile(sampleImage);
+          postImageRef.child("c$_myValue-$_d").putFile(sampleImage);
 
       var PostUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
       postUrl = PostUrl.toString();
@@ -130,9 +129,9 @@ class _CoverState extends State<Cover> {
                     ? Padding(
                         padding: EdgeInsets.all(50),
                         child: Text(
-                          "$grpName ${d.documentID}\n Topic-$topicIndex \n Cover Images Screen",
+                          "$grpName\n${d.documentID} - ${d.data["title"]}\nTopic-$topicIndex - ${d.data["Topic"].keys.toList()[topicIndex].split('??')[1]}\n Cover Images Screen",
                           style: TextStyle(fontSize: 30.0),
-                        ),
+                        ), 
                       )
                     : enableUpload(context)),
 
@@ -196,7 +195,9 @@ class _CoverState extends State<Cover> {
                               ),
                             ),
                             Center(
-                                child: Text("Cover $i",
+                              
+                                child: Text("Cover $i\n ${d.data["Topic"].values.toList()[topicIndex][i].split(RegExp(r'(%2F)..*(%2F)'))[1].split(".")[0]}"
+,
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 20,
