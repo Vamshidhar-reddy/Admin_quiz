@@ -64,7 +64,7 @@ class _CoverState extends State<Cover> {
   }
 
   void saveToDatabase(String url) {
-    final ref = Firestore.instance.collection("GroupA");
+    final ref = Firestore.instance.collection(grpName);
 
     Map<String, dynamic> Topic = d.data["Topic"];
     Topic.update("$topicKey", (e) {
@@ -102,6 +102,7 @@ class _CoverState extends State<Cover> {
   Widget build(BuildContext context) {
     d = Provider.of<Params>(context).docSnap;
     grpName = Provider.of<Params>(context).grpName;
+    print(grpName);
     topicIndex = Provider.of<Params>(context).topicIndex;
 
     folder = Provider.of<Params>(context).folder;
@@ -131,7 +132,7 @@ class _CoverState extends State<Cover> {
                         child: Text(
                           "$grpName\n${d.documentID} - ${d.data["title"]}\nTopic-$topicIndex - ${d.data["Topic"].keys.toList()[topicIndex].split('??')[1]}\n Cover Images Screen",
                           style: TextStyle(fontSize: 30.0),
-                        ), 
+                        ),
                       )
                     : enableUpload(context)),
 
@@ -163,7 +164,7 @@ class _CoverState extends State<Cover> {
                         child: Column(
                           children: <Widget>[
                             Container(
-                              height: MediaQuery.of(context).size.height * 0.3,
+                              height: MediaQuery.of(context).size.height * 0.25,
                               width: MediaQuery.of(context).size.width * 0.8,
                               child: Card(
                                 shape: RoundedRectangleBorder(
@@ -195,9 +196,8 @@ class _CoverState extends State<Cover> {
                               ),
                             ),
                             Center(
-                              
-                                child: Text("Cover $i\n ${d.data["Topic"].values.toList()[topicIndex][i].split(RegExp(r'(%2F)..*(%2F)'))[1].split(".")[0]}"
-,
+                                child: Text(
+                                    "Cover $i\n ${d.data["Topic"].values.toList()[topicIndex][i] .split(RegExp(r'(%2F)..*(%2F)'))[1].split("?")[0].split("-")[1].replaceAll(RegExp(r"%20"), " ")}",
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 20,

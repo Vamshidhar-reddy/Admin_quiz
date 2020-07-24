@@ -67,7 +67,7 @@ class _LoginState extends State<Login> {
                       TextFormField(
                        
                         // controller: pwd,
-                        // obscureText: true,
+                        obscureText: true,
                         validator: validatePassword,
                         decoration: InputDecoration(
                             contentPadding:
