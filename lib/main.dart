@@ -4,11 +4,27 @@ import 'package:admin_website/selection.dart';
 import 'package:admin_website/uploadData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'groupA.dart';
 import 'login.dart';
 
+bool jwt = false;
+
 void main() {
-  runApp(MyApp());
+  Future<void> main() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    jwt = await prefs.getBool("login");
+    print(jwt);
+
+// place();
+    // SharedPreferences store = await SharedPreferences.getInstance();
+    // store.("jwt");
+
+    // print('jwt ${jwt}');
+    runApp(MyApp());
+  }
+  // runApp(MyApp());
   // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
   //     .then((_){
   // runApp(MyApp());
@@ -24,10 +40,8 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/login': (BuildContext context) => Login(),
         'upload': (BuildContext context) => UploadData(),
-                'cover': (BuildContext context) => PaperBack(),
-                                'groupA': (BuildContext context) => GroupA(),
-
-
+        'cover': (BuildContext context) => PaperBack(),
+        'groupA': (BuildContext context) => GroupA(),
       },
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -35,7 +49,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Login(),
-      // home:GroupA()
+      // home: jwt == null ? Selection() : Login(), // home:GroupA()
     );
   }
 }

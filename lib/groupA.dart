@@ -263,7 +263,7 @@ class _GroupAState extends State<GroupA> {
                     children: <Widget>[
                       Center(
                           child: Image.file(sampleImage,
-                              height: 200, width: 150, fit: BoxFit.contain)),
+                              height: MediaQuery.of(context).size.height*0.4, width: MediaQuery.of(context).size.width*0.8, fit: BoxFit.contain)),
                     ],
                   ),
                   TextFormField(

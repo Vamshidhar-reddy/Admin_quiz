@@ -102,7 +102,6 @@ class _GroupBState extends State<GroupB> {
     qs = await Firestore.instance.collection("GroupB").getDocuments();
     print("doc");
     List<DocumentSnapshot> d = qs.documents;
- 
 
     // List<dynamic> cover = d[0].data["Cover"];
     // // cover.forEach((el) {
@@ -252,7 +251,9 @@ class _GroupBState extends State<GroupB> {
                     children: <Widget>[
                       Center(
                           child: Image.file(sampleImage,
-                              height: 200, width: 150, fit: BoxFit.contain)),
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              fit: BoxFit.contain)),
                     ],
                   ),
                   TextFormField(

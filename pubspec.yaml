@@ -39,7 +39,8 @@ dependencies:
   flutter_plugin_pdf_viewer:
   firebase_auth:
   cloud_firestore: 
-  cached_network_image: 
+  cached_network_image:
+  shared_preferences: 
   http:
   flushbar: 
     git: 
