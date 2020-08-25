@@ -42,6 +42,7 @@ dependencies:
   cloud_firestore: 
   cached_network_image: 
   http:
+  shared_preferences:
 
 dev_dependencies:
   flutter_test:

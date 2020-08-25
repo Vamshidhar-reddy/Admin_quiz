@@ -1,2 +1,1 @@
-String grpName;
-
+String grpName, subCol;

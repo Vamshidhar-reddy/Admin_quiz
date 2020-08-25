@@ -208,7 +208,27 @@ class _GroupAState extends State<GroupA> {
                                           style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 20,
-                                              fontWeight: FontWeight.bold)))
+                                              fontWeight: FontWeight.bold))),
+                                  RaisedButton(
+                                    onPressed: () async {
+                                      await Firestore.instance
+                                          .collection('$grpName')
+                                          .document(snap.data[i].documentID)
+                                          .delete();
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Group()));
+                                    },
+                                    color: Colors.red,
+                                    child: Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -216,7 +236,7 @@ class _GroupAState extends State<GroupA> {
                         },
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 1,
-                          childAspectRatio: 1.25,
+                          childAspectRatio: 1.0,
                           crossAxisSpacing: 0,
                           mainAxisSpacing: 0,
                         ),
@@ -270,7 +290,9 @@ class _GroupAState extends State<GroupA> {
                     children: <Widget>[
                       Center(
                           child: Image.file(sampleImage,
-                              height: 200, width: 150, fit: BoxFit.contain)),
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              fit: BoxFit.contain)),
                     ],
                   ),
                   TextFormField(

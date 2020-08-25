@@ -4,7 +4,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,6 +30,8 @@ class _NewsState extends State<News> {
   String cardUrl;
   String _d;
   String _group;
+  String dropdown = 'Art';
+
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   List<String> image = List<String>();
   var url;
@@ -65,13 +69,13 @@ class _NewsState extends State<News> {
       final StorageUploadTask uploadTask =
           postImageRef.child("$_myValue").putFile(sampleImage);
 
+      // ignore: non_constant_identifier_names
       var PostUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
       postUrl = PostUrl.toString();
       print("Post Url =" + postUrl);
       saveToDatabase(postUrl);
       getName();
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => News()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => News()));
     }
   }
 
@@ -85,17 +89,20 @@ class _NewsState extends State<News> {
 
     final ref = Firestore.instance.collection("news$grpName");
 
-
     var data = {
       "img": postUrl,
       "title": _myValue,
       "desc": _description,
       "date": date,
       "time": time,
+      "timestamp": dbTimeKey,
+      "category": dropdown,
+
+      // "dbTimeKey": dbTimeKey
       // "Topic": topic
     };
-    ref.document(_myValue+" "+time).setData(data);
-    print("paperback uplpaded");
+    ref.document(_myValue + " " + dbTimeKey.toString()).setData(data);
+    print("paperback uploaded");
   }
 
   Future<List<DocumentSnapshot>> getName() async {
@@ -104,9 +111,30 @@ class _NewsState extends State<News> {
     qs = await Firestore.instance.collection("news$grpName").getDocuments();
     print("doc");
     List<DocumentSnapshot> d = qs.documents;
+    print(d[0]);
 
     return d;
   }
+
+  // deleteImage() async {
+  //   if (postUrl != null) {
+  //     // var fileUrl = Uri.decodeFull(Path.basename(postUrl))
+  //     //     .replaceAll(new RegExp(r'(\?alt).*'), '');
+  //     // String path =
+  //     //     'https://firebasestorage.googleapis.com/v0/b/nutshellsubscription.appspot.com/o/GroupA%2Fnews%2FDevelopers?alt=media&token=e68b13f1-8c92-438d-948f-72864ab98967'
+  //     //         .replaceAll(
+  //     //             RegExp(
+  //     //                 'gs://nutshellsubscription.appspot.com/GroupA/news/Developers'),
+  //     //             '');
+  //     StorageReference photoRef = await FirebaseStorage.instance
+  //         .ref()
+  //         .getStorage()
+  //         .getReferenceFromUrl(path);
+  //     try {
+  //       await photoRef.delete();
+  //     } catch (e) {}
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -122,16 +150,17 @@ class _NewsState extends State<News> {
         child: Column(
           children: <Widget>[
             new Center(
-              child: sampleImage == null
-                  ? Padding(
-                      padding: EdgeInsets.all(50),
-                      child: Text(
-                        " $grpName News Screen",
-                        style: TextStyle(fontSize: 30.0),
-                      ),
-                    )
-                  : enableUpload(),
-            ),
+                child: sampleImage == null
+                    ? Column(
+                        children: <Widget>[
+                          Padding(padding: EdgeInsets.all(50)),
+                          Text(
+                            " $grpName News Screen",
+                            style: TextStyle(fontSize: 30.0),
+                          ),
+                        ],
+                      )
+                    : enableUpload()),
             FutureBuilder<List<DocumentSnapshot>>(
                 future: getName(),
                 builder: (context, snap) {
@@ -148,13 +177,12 @@ class _NewsState extends State<News> {
                             child: GestureDetector(
                               onTap: () {
                                 print("navigating");
-                              
                               },
                               child: Column(
                                 children: <Widget>[
                                   Container(
                                     height: MediaQuery.of(context).size.height *
-                                        0.3,
+                                        0.2,
                                     width:
                                         MediaQuery.of(context).size.width * 0.8,
                                     child: Card(
@@ -193,13 +221,38 @@ class _NewsState extends State<News> {
                                   ),
                                   Center(
                                       child: Text(
-                                         "Title :"+ snap.data[i].data["title"] +
+                                          "Title :" +
+                                              snap.data[i].data["title"] +
+                                              ", Cat: " +
+                                              snap.data[i].data["category"] +
                                               "\n " +
-                                               "Desc :"+ snap.data[i].data["desc"],
+                                              "Desc :" +
+                                              snap.data[i].data["desc"],
                                           style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 20,
-                                              fontWeight: FontWeight.bold)))
+                                              fontWeight: FontWeight.bold))),
+                                  RaisedButton(
+                                    onPressed: () async {
+                                      await Firestore.instance
+                                          .collection('news$grpName')
+                                          .document(snap.data[i].documentID)
+                                          .delete();
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  NewsGroup()));
+                                    },
+                                    color: Colors.red,
+                                    child: Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -207,7 +260,7 @@ class _NewsState extends State<News> {
                         },
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 1,
-                          childAspectRatio: 1.25,
+                          childAspectRatio: 0.5,
                           crossAxisSpacing: 0,
                           mainAxisSpacing: 0,
                         ),
@@ -261,7 +314,9 @@ class _NewsState extends State<News> {
                     children: <Widget>[
                       Center(
                           child: Image.file(sampleImage,
-                              height: 200, width: 150, fit: BoxFit.contain)),
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              fit: BoxFit.contain)),
                     ],
                   ),
                   TextFormField(
@@ -277,13 +332,79 @@ class _NewsState extends State<News> {
                     decoration:
                         new InputDecoration(labelText: 'Description of News'),
                     validator: (value) {
-                      return value.isEmpty
-                          ? 'Description of News'
-                          : null;
+                      return value.isEmpty ? 'Description of News' : null;
                     },
                     onSaved: (value) {
                       return _description = value;
                     },
+                  ),
+
+                  SizedBox(height: 20.0),
+                  Text(
+                    dropdown,
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ),
+
+                  new DropdownButton<String>(
+                    items: [
+                      'Art',
+                      'Badminton',
+                      'Business',
+                      'Covid-19',
+                      'Education',
+                      'Elections',
+                      'Entertainment',
+                      'Environment',
+                      'Festival',
+                      'General',
+                      'Government',
+                      'Health',
+                      'History',
+                      'In Memoriam',
+                      'Inspiring',
+                      'International',
+                      'Literarture',
+                      'Military',
+                      'Movies',
+                      'Music',
+                      'National',
+                      'News',
+                      'Political',
+                      'Politics',
+                      'Quiz',
+                      'Regional',
+                      'Science',
+                      'Space',
+                      'Technology',
+                      'Social Service',
+                      'Special',
+                      'Sports',
+                      'Cricket',
+                      'Football',
+                      'Hockey',
+                      'Tennis',
+                      'Stories',
+                      'Technology',
+                      'Social Media',
+                      'Uncategorized',
+                      'World'
+                    ].map((String value) {
+                      return new DropdownMenuItem<String>(
+                        value: value,
+                        child: new Text('$value'),
+                      );
+                    }).toList(),
+                    onChanged: (v) {
+                      setState(() {
+                        dropdown = v;
+                      });
+                    },
+                    // selectedItemBuilder: (BuildContext context) {
+                    //   return items.map<Widget>((String item) {
+                    //     return Text(item);
+                    //   }).toList();
+                    // },
                   ),
                   // TextFormField(
                   //   decoration: new InputDecoration(labelText: 'd'),

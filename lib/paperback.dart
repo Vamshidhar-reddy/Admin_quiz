@@ -11,7 +11,6 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
-
 import 'cover.dart';
 
 class PaperBack extends StatefulWidget {
@@ -20,7 +19,7 @@ class PaperBack extends StatefulWidget {
 }
 
 class _PaperBackState extends State<PaperBack> {
-  String grpName;
+  String grpName, subCol;
   DocumentSnapshot d;
   File sampleImage;
   int _myValue;
@@ -77,17 +76,25 @@ class _PaperBackState extends State<PaperBack> {
   }
 
   void saveToDatabase(String url) {
-    final ref = Firestore.instance.collection("$grpName");
+    final ref = Firestore.instance
+        .collection("$grpName")
+        .document(d.documentID)
+        .collection('$subCol');
     print(grpName);
-    Map<String, dynamic> Topic = d.data["Topic"];
+    Map<String, List<String>> Topic = Map<String, List<String>>();
 
-    Topic.putIfAbsent("$_myValue??$_description??$postUrl",
-        () => cover); //0 is id 1 is name 2 is link
+    // Topic.putIfAbsent("$_myValue??$_description??$postUrl",
+    //     () => cover);
+    //0 is id 1 is name 2 is link
     // d.data["Topic"].putIfAbsent(
     //   "$_myValue-$_description-$postUrl.toString()",
     //   () => cover,
     // );
-    var data = {"Topic": Topic};
+    var data = {
+      "Topic": Topic,
+      "img": postUrl,
+      "title": _description,
+    };
     ref.document(d.documentID).updateData(data);
   }
 
@@ -97,6 +104,8 @@ class _PaperBackState extends State<PaperBack> {
     qs = await Firestore.instance
         .collection(grpName)
         .document(d.documentID)
+        .collection(subCol)
+        .document(d.documentID)
         .get();
     print("doc");
     // print(d.data["Topic"].keys.toList()[0]);
@@ -104,6 +113,7 @@ class _PaperBackState extends State<PaperBack> {
 
     // setState(() {
     d = qs;
+    // s = qs;
     Provider.of<Params>(context, listen: false).updateDoc(d);
 
     // });
@@ -114,6 +124,7 @@ class _PaperBackState extends State<PaperBack> {
   @override
   Widget build(BuildContext context) {
     grpName = Provider.of<Params>(context).grpName;
+    var docProvider = Provider.of<Params>(context, listen: false);
     d = Provider.of<Params>(context).docSnap;
     Future getDisplayImage() async {
       var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -142,100 +153,124 @@ class _PaperBackState extends State<PaperBack> {
                         ),
                       )
                     : enableUpload(context)),
-            // FutureBuilder(
-            //     future: getName(),
-            //     builder: (context, snap) {
-            //       if (snap.connectionState == ConnectionState.done) {
-            //         return
-            Consumer<Params>(builder: (context, obj, _) {
-              d = obj.docSnap ?? d;
-              return Expanded(
-                child: GridView.builder(
-                  // reverse: true,
-                  scrollDirection: Axis.vertical,
-                  // shrinkWrap: true,
-                  itemCount: d.data["Topic"].keys.toList().length,
-                  itemBuilder: (context, i) {
-                    print("inside grid");
-                    // print(d.data["Topic"].keys.toList()[i].split('??')[i]);
-                    return Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          print("navigating");
-                          Provider.of<Params>(context, listen: false).topicTap(
-                              '''$grpName/${d.documentID}/T${d.data["Topic"].keys.toList()[i].split('??')[0]}-${d.data["Topic"].keys.toList()[i].split('??')[1]}''',
-                              d.data["Topic"].keys.toList()[i],
-                              i);
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              print(grpName);
-                              return Cover();
-                            },
-                          ));
-                        },
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              height: MediaQuery.of(context).size.height * 0.3,
-                              width: MediaQuery.of(context).size.width * 0.8,
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                elevation: 4.0,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: GridTile(
-                                    // child:
-                                    //  Hero(
-                                    //   tag: i,
-                                    child: CachedNetworkImage(
-                                      imageUrl:
-                                          // "http://via.placeholder.com/350x200",
+            FutureBuilder<List<DocumentSnapshot>>(
+                future: getName(context),
+                builder: (context, snap) {
+                  if (snap.connectionState == ConnectionState.done) {
+                    //         return
+                    // Consumer<Params>(builder: (context, obj, _) {
+                    //   d = obj.docSnap ?? d;
+                    return Expanded(
+                      child: GridView.builder(
+                        // reverse: true,
+                        scrollDirection: Axis.vertical,
+                        // shrinkWrap: true,
+                        itemCount: snap.data.length,
+                        itemBuilder: (context, i) {
+                          print("inside grid");
+                          // print(d.data["Topic"].keys.toList()[i].split('??')[i]);
+                          return Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                print("navigating");
+                                docProvider.updateDoc(snap.data[i]);
+                                // Provider.of<Params>(context, listen: false)
+                                //     .topicTap(
+                                //         '''$grpName/${d.documentID}/T${d.data["Topic"].keys.toList()[i].split('??')[0]}-${d.data["Topic"].keys.toList()[i].split('??')[1]}''',
+                                //         d.data["Topic"].keys.toList()[i],
+                                //         i);
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) {
+                                    print(grpName);
+                                    return Cover();
+                                  },
+                                ));
+                              },
+                              child: Column(
+                                children: <Widget>[
+                                  Container(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.3,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      elevation: 4.0,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: GridTile(
+                                          // child:
+                                          //  Hero(
+                                          //   tag: i,
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                // "http://via.placeholder.com/350x200",
 
-                                          d.data["Topic"].keys
-                                              .toList()[i]
-                                              .split('??')[2],
-                                      fit: BoxFit.fill,
-                                      placeholder: (context, url) => Center(
-                                          child: CircularProgressIndicator()),
-                                      errorWidget: (_, str, dynamic) => Center(
-                                        child: Icon(Icons.error),
+                                                snap.data[i].data["img"],
+                                            fit: BoxFit.fill,
+                                            placeholder: (context, url) => Center(
+                                                child:
+                                                    CircularProgressIndicator()),
+                                            errorWidget: (_, str, dynamic) =>
+                                                Center(
+                                              child: Icon(Icons.error),
+                                            ),
+                                          ),
+                                          // ),
+                                        ),
                                       ),
                                     ),
-                                    // ),
                                   ),
-                                ),
+                                  Center(
+                                      child: Text(
+                                          // "Topic " +
+                                          //     d.data["Topic"].keys
+                                          //         .toList()[i]
+                                          //         .split('??')[0] +
+                                          //     "\n" +
+                                          snap.data[i].data["title"],
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold))),
+                                  // RaisedButton(
+                                  //   onPressed: () async {
+                                  //     await Firestore.instance
+                                  //         .collection('$grpName')
+                                  //         .document(d.documentID)
+                                  //         .updateData({'Topic': FieldValue.delete()});
+                                  //     print('object');
+                                  //     Navigator.pushReplacement(
+                                  //         context,
+                                  //         MaterialPageRoute(
+                                  //             builder: (context) => PaperBack()));
+                                  //   },
+                                  //   color: Colors.red,
+                                  //   child: Text(
+                                  //     'Delete',
+                                  //     style: TextStyle(
+                                  //       color: Colors.white,
+                                  //       fontSize: 16.0,
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                ],
                               ),
                             ),
-                            Center(
-                                child: Text(
-                                    "Topic " +
-                                        d.data["Topic"].keys
-                                            .toList()[i]
-                                            .split('??')[0] +
-                                        "\n" +
-                                        d.data["Topic"].keys
-                                            .toList()[i]
-                                            .split('??')[1],
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold)))
-                          ],
+                          );
+                        },
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 1,
+                          childAspectRatio: 1.0,
+                          crossAxisSpacing: 0,
+                          mainAxisSpacing: 0,
                         ),
                       ),
                     );
-                  },
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    childAspectRatio: 1.3,
-                    crossAxisSpacing: 0,
-                    mainAxisSpacing: 0,
-                  ),
-                ),
-              );
-            })
+                  }
+                })
             //     ;
             //   }
 
@@ -290,7 +325,11 @@ class _PaperBackState extends State<PaperBack> {
                           padding: const EdgeInsets.all(8.0),
                           child: Center(
                               child: Image.file(sampleImage,
-                                  height: 250, width: 150, fit: BoxFit.fill)),
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.4,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  fit: BoxFit.fill)),
                         ),
                       ],
                     ),

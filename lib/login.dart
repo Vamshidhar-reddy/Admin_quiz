@@ -1,5 +1,7 @@
 import 'package:admin_website/selection.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'main.dart';
 
 class Login extends StatefulWidget {
   Login({Key key, this.title}) : super(key: key);
@@ -65,7 +67,6 @@ class _LoginState extends State<Login> {
                       ),
                       Padding(padding: EdgeInsets.all(10.0)),
                       TextFormField(
-                       
                         // controller: pwd,
                         obscureText: true,
                         validator: validatePassword,
@@ -97,13 +98,14 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void _validateInputs() {
+  void _validateInputs() async {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-
-      Navigator.push(context,
-          new MaterialPageRoute(builder: (context) => new Selection()));
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool("login", true);
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (BuildContext ctx) => Selection()));
     }
   }
 
