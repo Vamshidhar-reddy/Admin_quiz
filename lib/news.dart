@@ -70,8 +70,7 @@ class _NewsState extends State<News> {
       print("Post Url =" + postUrl);
       saveToDatabase(postUrl);
       getName();
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => News()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => News()));
     }
   }
 
@@ -85,7 +84,6 @@ class _NewsState extends State<News> {
 
     final ref = Firestore.instance.collection("news$grpName");
 
-
     var data = {
       "img": postUrl,
       "title": _myValue,
@@ -94,7 +92,7 @@ class _NewsState extends State<News> {
       "time": time,
       // "Topic": topic
     };
-    ref.document(_myValue+" "+time).setData(data);
+    ref.document(_myValue + " " + time).setData(data);
     print("paperback uplpaded");
   }
 
@@ -148,7 +146,6 @@ class _NewsState extends State<News> {
                             child: GestureDetector(
                               onTap: () {
                                 print("navigating");
-                              
                               },
                               child: Column(
                                 children: <Widget>[
@@ -193,13 +190,38 @@ class _NewsState extends State<News> {
                                   ),
                                   Center(
                                       child: Text(
-                                         "Title :"+ snap.data[i].data["title"] +
+                                          "Title :" +
+                                              snap.data[i].data["title"] +
                                               "\n " +
-                                               "Desc :"+ snap.data[i].data["desc"],
+                                              "Desc :" +
+                                              snap.data[i].data["desc"],
                                           style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 20,
-                                              fontWeight: FontWeight.bold)))
+                                              fontWeight: FontWeight.bold))),
+                                  RaisedButton(
+                                    onPressed: () async {
+                                      await Firestore.instance
+                                          .collection('news$grpName')
+                                          .document(snap.data[i].documentID)
+                                          .delete();
+                                      // .updateData(
+                                      //     {'Topic': FieldValue.delete()});
+                                      print('object');
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => News()));
+                                    },
+                                    color: Colors.red,
+                                    child: Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -277,9 +299,7 @@ class _NewsState extends State<News> {
                     decoration:
                         new InputDecoration(labelText: 'Description of News'),
                     validator: (value) {
-                      return value.isEmpty
-                          ? 'Description of News'
-                          : null;
+                      return value.isEmpty ? 'Description of News' : null;
                     },
                     onSaved: (value) {
                       return _description = value;
